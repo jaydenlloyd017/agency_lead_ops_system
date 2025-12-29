@@ -18,7 +18,7 @@ class Lead(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String, nullable = False)
-    email = Column(String, nullable = False)
+    email = Column(String, nullable = False, unique=True)
     phone = Column(String, nullable = True)
     source = Column(String, nullable = True)
     status = Column(Enum(LeadStatus), nullable=False, default=LeadStatus.NEW)

@@ -6,3 +6,4 @@ class LeadCreate(BaseModel):
     email:  EmailStr
     phone: Optional[str] = None
     source:  Optional[str] = None
+
