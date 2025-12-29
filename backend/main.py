@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
 from models import Lead, LeadStatus, User
-from schemas import LeadCreate
+from schemas import LeadCreate, LeadStatusUpdate
 
 app = FastAPI()
 
@@ -59,3 +59,31 @@ async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
     db.refresh(new_lead)
 
     return new_lead
+
+@app.patch("/api/leads/{lead_id}/status")
+async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: Session = Depends(get_db)):
+
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    new_status = status_update.new_status
+
+    allowed_transitions = {
+        LeadStatus.NEW: [LeadStatus.CONTACTED],
+        LeadStatus.CONTACTED: [LeadStatus.QUALIFIED, LeadStatus.CLOSED_LOST],
+        LeadStatus.QUALIFIED: [LeadStatus.BOOKED, LeadStatus.CLOSED_LOST],
+        LeadStatus.BOOKED: [LeadStatus.CLOSED_WON, LeadStatus.CLOSED_LOST],
+    }
+    
+    current_status = lead.status
+    
+    if new_status not in allowed_transitions[current_status]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot move from {current_status} to {new_status}"
+        )
+    
+    lead.status = new_status 
+    db.commit()
+    db.refresh(lead)        
