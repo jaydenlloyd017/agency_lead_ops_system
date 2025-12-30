@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from database import get_db
-from models import Lead, LeadStatus, User
+from models import Lead, LeadStatus, User, LeadStatusHistory
 from schemas import LeadCreate, LeadStatusUpdate
 
 app = FastAPI()
@@ -63,12 +63,14 @@ async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
 @app.patch("/api/leads/{lead_id}/status")
 async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: Session = Depends(get_db)):
 
+    # Get lead from table 
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
     
     new_status = status_update.new_status
 
+    # Define allowed status transitions
     allowed_transitions = {
         LeadStatus.NEW: [LeadStatus.CONTACTED],
         LeadStatus.CONTACTED: [LeadStatus.QUALIFIED, LeadStatus.CLOSED_LOST],
@@ -78,12 +80,45 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
     
     current_status = lead.status
     
+    # Validation for transition
+    
+    # Check if the lead is in terminal state (won or closed)
+    if current_status not in allowed_transitions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Lead is already in terminal state: {current_status}"
+        )
+    
+
+    # Check if the lead is correct transition - no skipping
     if new_status not in allowed_transitions[current_status]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot move from {current_status} to {new_status}"
         )
     
-    lead.status = new_status 
+    lead.status = new_status
+    
+    # Log the history table  
+    history_entry = LeadStatusHistory(
+        lead_id = lead.id,
+        from_status = current_status,
+        to_status=new_status,
+        changed_by=None
+    )
+
+    db.add(history_entry)
     db.commit()
-    db.refresh(lead)        
+    db.refresh(lead)
+
+    # New updated lead 
+    return {
+        "lead": {
+            "id": lead.id,
+            "full_name": lead.full_name,
+            "email": lead.email,
+            "status": lead.status,
+            "assigned_to": lead.assigned_to
+        },
+        "message": f"Lead status updated from {current_status} to {new_status}"
+    }
