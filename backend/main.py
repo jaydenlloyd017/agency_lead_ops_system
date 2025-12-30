@@ -6,11 +6,13 @@ from schemas import LeadCreate, LeadStatusUpdate
 
 app = FastAPI()
 
+# --- Read all leads --- 
 @app.get("/leads")
 async def get_leads(db: Session = Depends(get_db)):
     leads = db.query(Lead).all()  # Get all rows from leads table
     return leads
-   
+
+# --- Create a lead + automatic assignment of rep 
 @app.post("/api/leads")
 async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
 
@@ -52,13 +54,14 @@ async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
 
     new_lead.assigned_to = next_rep.id
 
-
     # Save lead
     db.add(new_lead)
     db.commit()
     db.refresh(new_lead)
 
     return new_lead
+
+# --- Change the status of the lead ---
 
 @app.patch("/api/leads/{lead_id}/status")
 async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: Session = Depends(get_db)):
@@ -80,7 +83,7 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
     
     current_status = lead.status
     
-    # Validation for transition
+    # --- Validation for transition ---
     
     # Check if the lead is in terminal state (won or closed)
     if current_status not in allowed_transitions:
@@ -89,7 +92,6 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
             detail=f"Lead is already in terminal state: {current_status}"
         )
     
-
     # Check if the lead is correct transition - no skipping
     if new_status not in allowed_transitions[current_status]:
         raise HTTPException(
@@ -122,3 +124,25 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
         },
         "message": f"Lead status updated from {current_status} to {new_status}"
     }
+
+
+
+# - Fetch the full status timeline for a lead
+@app.get("/api/leads/{id}/history")
+async def get_lead_history(lead_id: int, db: Session = Depends(get_db)):
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    history_entries = db.query(LeadStatusHistory).filter(
+        LeadStatusHistory.lead_id == lead_id
+    ).order_by(LeadStatusHistory.changed_at.asc()).all()
+
+    return [
+        {
+            "from_status": entry.from_status,
+            "to_status": entry.to_status,
+            "changed_by": entry.changed_by,
+            "changed_at": entry.changed_at
+        } for entry in history_entries
+    ]
