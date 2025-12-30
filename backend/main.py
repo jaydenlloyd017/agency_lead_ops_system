@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from database import get_db
-from models import Lead, LeadStatus, User, LeadStatusHistory
-from schemas import LeadCreate, LeadStatusUpdate
+from backend.database import get_db
+from backend.models import Lead, LeadStatus, User, LeadStatusHistory
+from backend.schemas import LeadCreate, LeadStatusUpdate
+from backend.routers import auth  # your auth router
+
 
 app = FastAPI()
+
+app.include_router(auth.router)
 
 # --- Read all leads --- 
 @app.get("/leads")
@@ -128,6 +132,7 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
 
 
 # - Fetch the full status timeline for a lead
+
 @app.get("/api/leads/{id}/history")
 async def get_lead_history(lead_id: int, db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
@@ -145,4 +150,4 @@ async def get_lead_history(lead_id: int, db: Session = Depends(get_db)):
             "changed_by": entry.changed_by,
             "changed_at": entry.changed_at
         } for entry in history_entries
-    ]
+    ] 

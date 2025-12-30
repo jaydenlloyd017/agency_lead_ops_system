@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
-from models import LeadStatus
+from backend.models import LeadStatus
 
 class LeadCreate(BaseModel):
     full_name: str

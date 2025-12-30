@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, Boolean
 from sqlalchemy.sql import func
-from database import Base
+from backend.database import Base
 import enum
 
 class LeadStatus(str, enum.Enum):
