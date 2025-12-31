@@ -4,7 +4,7 @@ from jose import jwt
 
 SECRET_KEY = "your-super-secret-key"  # keep this secret
 ALGORITHM = "HS256"  # HMAC-SHA256
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def create_access_token(data: dict):

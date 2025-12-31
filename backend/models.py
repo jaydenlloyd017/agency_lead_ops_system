@@ -48,3 +48,4 @@ class LeadStatusHistory(Base):
     to_status = Column(Enum(LeadStatus), nullable=False)
     changed_by = Column(Integer, ForeignKey("users.id"), nullable=True)  # Null if system-generated
     changed_at = Column(DateTime(timezone=True), server_default=func.now())
+

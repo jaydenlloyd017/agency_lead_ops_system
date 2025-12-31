@@ -30,7 +30,16 @@ async def get_leads(
 
 # --- Create a lead + automatic assignment of rep 
 @router.post("/api/leads")
-async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
+async def create_lead(
+    lead_in: LeadCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can create leads."
+        )
 
     existing_lead = db.query(Lead).filter(Lead.email == lead_in.email).first()
     if existing_lead:
@@ -83,13 +92,30 @@ async def create_lead(lead_in: LeadCreate, db: Session = Depends(get_db)):
 # --- Change the status of the lead ---
 
 @router.patch("/api/leads/{lead_id}/status")
-async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: Session = Depends(get_db)):
-
+async def update_lead_status(
+    lead_id: int,
+    status_update: LeadStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     # Get lead from table 
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
-    
+
+    # Ensure reps can only update their assigned leads
+    if current_user.role == "rep" and lead.assigned_to != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this lead."
+        )
+    elif current_user.role != "admin":
+        # If the role is neither admin nor rep, deny access
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this lead."
+        )
+
     new_status = status_update.new_status
 
     # Define allowed status transitions
@@ -99,33 +125,33 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
         LeadStatus.QUALIFIED: [LeadStatus.BOOKED, LeadStatus.CLOSED_LOST],
         LeadStatus.BOOKED: [LeadStatus.CLOSED_WON, LeadStatus.CLOSED_LOST],
     }
-    
+
     current_status = lead.status
-    
+
     # --- Validation for transition ---
-    
+
     # Check if the lead is in terminal state (won or closed)
     if current_status not in allowed_transitions:
         raise HTTPException(
             status_code=400,
             detail=f"Lead is already in terminal state: {current_status}"
         )
-    
+
     # Check if the lead is correct transition - no skipping
     if new_status not in allowed_transitions[current_status]:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot move from {current_status} to {new_status}"
         )
-    
+
     lead.status = new_status
-    
+
     # Log the history table  
     history_entry = LeadStatusHistory(
-        lead_id = lead.id,
-        from_status = current_status,
+        lead_id=lead.id,
+        from_status=current_status,
         to_status=new_status,
-        changed_by=None
+        changed_by=current_user.id  # Log the user making the change
     )
 
     db.add(history_entry)
@@ -149,10 +175,17 @@ async def update_lead_status(lead_id: int, status_update: LeadStatusUpdate, db: 
 # - Fetch the full status timeline for a lead
 
 @router.get("/api/leads/{id}/history")
-async def get_lead_history(lead_id: int, db: Session = Depends(get_db)):
+async def get_lead_history(lead_id: int,current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     lead = db.query(Lead).filter(Lead.id == lead_id).first()
     if not lead:
         raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # Role-based access control
+    if current_user.role == "rep" and lead.assigned_to != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view this lead's history."
+        )
     
     history_entries = db.query(LeadStatusHistory).filter(
         LeadStatusHistory.lead_id == lead_id
