@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from typing import Optional, Annotated
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from backend.models import LeadStatus
 
@@ -10,3 +11,18 @@ class LeadCreate(BaseModel):
 
 class LeadStatusUpdate(BaseModel):
     new_status: LeadStatus
+
+class UserCreate(BaseModel):
+    full_name: str
+    email: EmailStr
+    password: Annotated[str, Field(min_length=6)]
+    role: str
+
+class UserResponse(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    role: str
+
+    class Config:
+        orm_mode = True
