@@ -3,13 +3,29 @@ from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Lead, LeadStatus, User, LeadStatusHistory
 from backend.schemas import LeadCreate, LeadStatusUpdate
+from backend.routers.auth import get_current_user
 
 router = APIRouter()
 
 # --- Read all leads --- 
 @router.get("/leads")
-async def get_leads(db: Session = Depends(get_db)):
-    leads = db.query(Lead).all()  # Get all rows from leads table
+async def get_leads(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role == "rep":
+        # Reps can only see leads assigned to them
+        leads = db.query(Lead).filter(Lead.assigned_to == current_user.id).all()
+    elif current_user.role == "admin":
+        # Admins can see all leads
+        leads = db.query(Lead).all()
+    else:
+        # If the role is unrecognized, raise an exception
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this resource."
+        )
+
     return leads
 
 # --- Create a lead + automatic assignment of rep 
@@ -149,4 +165,4 @@ async def get_lead_history(lead_id: int, db: Session = Depends(get_db)):
             "changed_by": entry.changed_by,
             "changed_at": entry.changed_at
         } for entry in history_entries
-    ] 
+    ]
