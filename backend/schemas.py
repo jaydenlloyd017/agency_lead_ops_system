@@ -24,5 +24,9 @@ class UserResponse(BaseModel):
     email: EmailStr
     role: str
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
+
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
