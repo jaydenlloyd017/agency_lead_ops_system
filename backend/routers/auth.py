@@ -3,19 +3,20 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Lead, LeadStatus, User, LeadStatusHistory
-from backend.schemas import LeadCreate, LeadStatusUpdate, UserCreate, UserResponse, UserLogin, TokenData
+from backend.schemas import LeadCreate, LeadStatusUpdate, UserCreate, UserResponse, UserLogin, TokenData, Token
 from backend.jwt_utils import create_access_token
 from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import JWTError, jwt
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jose import jwt
+from datetime import datetime, timedelta, timezone
 from backend.database import get_db
 
 router = APIRouter()
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+oauth2_bearer = OAuth2PasswordBearer(tokenURL=Token)
 
-
-SECRET_KEY = "key" 
+SECRET_KEY = "55e4e9549904a7ac222690c23793855e906db6dc6fca802c5f5b8ad78deaa679" 
 ALGORITHM = "HS256"
 
 @router.post("/register", response_model=UserResponse)
@@ -52,11 +53,21 @@ def authenticate_user(email: str, password: str, db):
     if not bcrypt_context.verify(password, user.hashed_password):
         return False
 
-    return True
-@router.post("/token")
+    return user
+
+def create_access_token(email: str, user_id: int, expires_delta: timedelta):
+    encode = {'sub': email, 'id': user_id}
+    expires = datetime.now(timezone.utc) + expires_delta
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+
+@router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                                  db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         return 'Failed Authentication'
-    return 'Successfull Authentication'
+    token = create_access_token(user.email, user.id, timedelta(minutes=20))
+    return {'access_token': token, 'token_type': 'bearer'}
