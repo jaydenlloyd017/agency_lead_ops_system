@@ -11,15 +11,18 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from backend.database import get_db
 
-router = APIRouter()
+router = APIRouter(
+    prefix='/auth',
+    tags=['auth']
+)
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 SECRET_KEY = "55e4e9549904a7ac222690c23793855e906db6dc6fca802c5f5b8ad78deaa679" 
 ALGORITHM = "HS256"
 
-@router.post("/register", response_model=UserResponse)
+@router.post("/", response_model=UserResponse)
 async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
 
     existing_user = db.query(User).filter(User.email == user_in.email).first()
@@ -81,6 +84,7 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
                                  db: Session = Depends(get_db)):
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
-        return 'Failed Authentication'
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORISED,
+                                 detail='Could not validate user.')
     token = create_access_token(user.email, user.id, timedelta(minutes=20))
     return {'access_token': token, 'token_type': 'bearer'}
