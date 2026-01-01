@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 
 
-SECRET_KEY = "your-super-secret-key"  # keep this secret
+SECRET_KEY = "key"  # keep this secret
 ALGORITHM = "HS256"  # HMAC-SHA256
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
