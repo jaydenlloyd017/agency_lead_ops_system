@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 ALGORITHM = "HS256"  # HMAC-SHA256
 ACCESS_TOKEN_EXPIRE_MINUTES = 30

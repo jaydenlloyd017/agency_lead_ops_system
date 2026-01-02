@@ -11,6 +11,9 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from backend.database import get_db
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter(
     prefix='/auth',
