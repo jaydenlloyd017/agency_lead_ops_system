@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta, timezone
 from jose import jwt
+import os
 
 
-SECRET_KEY = "55e4e9549904a7ac222690c23793855e906db6dc6fca802c5f5b8ad78deaa679"  # keep this secret
 ALGORITHM = "HS256"  # HMAC-SHA256
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 def create_access_token(data: dict):

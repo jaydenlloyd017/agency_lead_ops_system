@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
 from backend.database import get_db
+import os
 
 router = APIRouter(
     prefix='/auth',
@@ -19,7 +20,7 @@ router = APIRouter(
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
-SECRET_KEY = "55e4e9549904a7ac222690c23793855e906db6dc6fca802c5f5b8ad78deaa679" 
+SECRET_KEY = os.getenv("SECRET_KEY") 
 ALGORITHM = "HS256"
 
 @router.post("/", response_model=UserResponse)

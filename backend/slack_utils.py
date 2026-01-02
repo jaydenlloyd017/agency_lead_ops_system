@@ -4,7 +4,7 @@ import os
 from sqlalchemy.orm import Session
 from backend.models import User
 
-slack_client = WebClient(token="xoxb-10205113633895-10233504596209-ePDmhuNhhy0aUHogfhUCHVrG")
+slack_client = WebClient(token=os.getenv("SLACK_BOT_TOKEN"))
 
 def fetch_slack_users():
     """
@@ -79,13 +79,6 @@ def sync_slack_ids(db: Session):
 def send_slack_dm(user_id: str, lead_name: str, lead_email: str, lead_source: str, lead_id: int):
     """
     Sends a direct message to a Slack user about a new lead assignment.
-
-    Args:
-        user_id (str): The Slack User ID of the recipient.
-        lead_name (str): The name of the lead.
-        lead_email (str): The email of the lead.
-        lead_source (str): The source of the lead.
-        lead_id (int): The ID of the lead.
     """
     try:
         print(f"Preparing to send Slack DM to user_id: {user_id}")
