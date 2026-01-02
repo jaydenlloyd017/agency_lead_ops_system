@@ -37,6 +37,7 @@ class User(Base):
     role = Column(String, nullable=False)  # "admin" or "rep"
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    slack_id = Column(String, nullable=True)
 
 
 class LeadStatusHistory(Base):

@@ -5,6 +5,7 @@ from backend.database import get_db
 from backend.models import Lead, LeadStatus, User, LeadStatusHistory
 from backend.schemas import LeadCreate, LeadStatusUpdate
 from .auth import get_current_user
+from backend.slack_utils import send_slack_dm, sync_slack_ids
 
 
 router = APIRouter()
@@ -92,12 +93,26 @@ async def create_lead(user: user_dependency, lead_in: LeadCreate, db: Session = 
     next_index = (last_index + 1) % len(reps)
     next_rep = reps[next_index]
 
-    new_lead.assigned_to = next_rep.id
+    new_lead.assigned_to = 7
 
     # Save lead
     db.add(new_lead)
     db.commit()
     db.refresh(new_lead)
+
+    # Slack DM to correct sales rep 
+    assigned_rep = db.query(User).filter(User.id == new_lead.assigned_to).first()
+    if assigned_rep and assigned_rep.slack_id:
+        try:
+            send_slack_dm(
+                user_id=assigned_rep.slack_id,
+                lead_name=new_lead.full_name,
+                lead_email=new_lead.email,
+                lead_source=new_lead.source,
+                lead_id=new_lead.id
+            )
+        except Exception as e:
+            print(f"Slack notification failed: {e}")
 
     return new_lead
 
