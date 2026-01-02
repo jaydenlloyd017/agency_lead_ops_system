@@ -6,8 +6,8 @@ from backend.models import LeadStatus
 class LeadCreate(BaseModel):
     full_name: str
     email:  EmailStr
-    phone: Optional[str] = None
-    source:  Optional[str] = None
+    phone: Optional[str] = Field(None, regex=r"^07\d{9}$", example="07123456789")  
+    source:  Optional[str] = Field(None, description="Source of the lead (e.g., 'website', 'referral')")
 
 class LeadStatusUpdate(BaseModel):
     new_status: LeadStatus
@@ -22,7 +22,7 @@ class UserResponse(BaseModel):
     id: int
     full_name: str
     email: EmailStr
-    role: str
+    role: Annotated[str, Field(regex="^(admin|rep)$")]
 
     model_config = {"from_attributes": True}
 
@@ -38,3 +38,13 @@ class TokenData(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+class LeadResponse(BaseModel):
+    id: int
+    full_name: str
+    email: EmailStr
+    phone: Optional[str]
+    source: Optional[str]
+    status: LeadStatus
+
+    model_config = {"from_attributes": True}
