@@ -1,11 +1,13 @@
+import sys
+import os
+
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.slack_utils import sync_slack_ids
 from backend.database import SessionLocal
 from sqlalchemy import text
-import os
 
-if not os.getenv("SLACK_BOT_TOKEN"):
-    raise EnvironmentError("SLACK_BOT_TOKEN environment variable is not set!")
 # Create a database session
 db = SessionLocal()
 

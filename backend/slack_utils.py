@@ -4,7 +4,7 @@ import os
 from sqlalchemy.orm import Session
 from backend.models import User
 
-slack_client = WebClient(token=os.getenv("xoxb-10205113633895-10233504596209-VgwI8DDV1ksvz7GBtKZW1g87"))
+slack_client = WebClient(token="xoxb-10205113633895-10233504596209-ePDmhuNhhy0aUHogfhUCHVrG")
 
 def fetch_slack_users():
     """
@@ -88,6 +88,7 @@ def send_slack_dm(user_id: str, lead_name: str, lead_email: str, lead_source: st
         lead_id (int): The ID of the lead.
     """
     try:
+        print(f"Preparing to send Slack DM to user_id: {user_id}")
         message = (
             f"🚨 *New Lead Assigned*\n\n"
             f"👤 *Name:* {lead_name}\n"
@@ -97,6 +98,10 @@ def send_slack_dm(user_id: str, lead_name: str, lead_email: str, lead_source: st
             f"🔗 *View lead:* https://your-dashboard-url/leads/{lead_id}"
         )
         response = slack_client.chat_postMessage(channel=user_id, text=message)
-        print(f"Message sent to {user_id}: {response['message']['text']}")
+        print(f"Message sent successfully to {user_id}: {response['message']['text']}")
+    except SlackApiError as e:
+        print(f"Slack API error sending message: {e.response['error']}")
+        print(f"Full error response: {e.response}")
+        raise
     except SlackApiError as e:
         print(f"Error sending message: {e.response['error']}")

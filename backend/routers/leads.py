@@ -102,8 +102,12 @@ async def create_lead(user: user_dependency, lead_in: LeadCreate, db: Session = 
 
     # Slack DM to correct sales rep 
     assigned_rep = db.query(User).filter(User.id == new_lead.assigned_to).first()
+    print(f"Debug - Assigned rep: {assigned_rep.email if assigned_rep else 'None'}")
+    print(f"Debug - Slack ID: {assigned_rep.slack_id if assigned_rep else 'None'}")
+    
     if assigned_rep and assigned_rep.slack_id:
         try:
+            print(f"Attempting to send Slack DM to {assigned_rep.email} (Slack ID: {assigned_rep.slack_id})")
             send_slack_dm(
                 user_id=assigned_rep.slack_id,
                 lead_name=new_lead.full_name,
@@ -111,8 +115,14 @@ async def create_lead(user: user_dependency, lead_in: LeadCreate, db: Session = 
                 lead_source=new_lead.source,
                 lead_id=new_lead.id
             )
+            print(f"Slack notification sent successfully to {assigned_rep.email}")
         except Exception as e:
             print(f"Slack notification failed: {e}")
+    else:
+        if not assigned_rep:
+            print(f"No assigned rep found for lead {new_lead.id}")
+        elif not assigned_rep.slack_id:
+            print(f"Assigned rep {assigned_rep.email} does not have a Slack ID set")
 
     return new_lead
 
