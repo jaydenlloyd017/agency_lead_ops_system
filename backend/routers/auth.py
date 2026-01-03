@@ -26,32 +26,7 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 SECRET_KEY = os.getenv("SECRET_KEY") 
 ALGORITHM = "HS256"
 
-@router.post("/", response_model=UserResponse)
-async def register_user(user_in: UserCreate, db: Session = Depends(get_db)):
-
-    existing_user = db.query(User).filter(User.email == user_in.email).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this email already exists"
-        )
-
-    new_user = User(
-        full_name=user_in.full_name,
-        email=user_in.email,
-        hashed_password=bcrypt_context.hash(user_in.password),
-        role=user_in.role
-    )
-
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return new_user
-
-
-
-
+# Helper functions first
 def authenticate_user(email: str, password: str, db):
     user = db.query(User).filter(User.email == email).first()
     if not user:
@@ -62,8 +37,8 @@ def authenticate_user(email: str, password: str, db):
 
     return user
 
-def create_access_token(email: str, user_id: int, expires_delta: timedelta):
-    encode = {'sub': email, 'id': user_id}
+def create_access_token(email: str, user_id: int, role: str, expires_delta: timedelta):
+    encode = {'sub': email, 'id': user_id, 'role': role}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -107,8 +82,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Se
         )
     return user
 
-
-
+# Routes
 @router.post("/token", response_model=Token)
 async def login_for_access_token(request: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(request.email, request.password, db)
@@ -116,5 +90,43 @@ async def login_for_access_token(request: LoginRequest, db: Session = Depends(ge
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user.')
-    token = create_access_token(request.email, user.id, timedelta(minutes=20))
+    token = create_access_token(request.email, user.id, user.role, timedelta(minutes=20))
     return {'access_token': token, 'token_type': 'bearer'}
+
+@router.get("/me", response_model=UserResponse)
+async def get_current_user_info(current_user: User = Depends(get_current_user)):
+    """Get the current authenticated user's information from the database"""
+    return current_user
+
+@router.post("/", response_model=UserResponse)
+async def register_user(
+    user_in: UserCreate, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Only admins can create users
+    if current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can create users."
+        )
+
+    existing_user = db.query(User).filter(User.email == user_in.email).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists"
+        )
+
+    new_user = User(
+        full_name=user_in.full_name,
+        email=user_in.email,
+        hashed_password=bcrypt_context.hash(user_in.password),
+        role=user_in.role
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user

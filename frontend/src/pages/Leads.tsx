@@ -19,6 +19,7 @@ export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [error, setError] = useState("");
+  const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,28 @@ export default function Leads() {
         console.log("Authorization header:", `Bearer ${token}`);
 
         if (!token) {
+          navigate("/");
+          return;
+        }
+
+        // Fetch user info from backend to get current role from database
+        try {
+          const userResponse = await axios.get(
+            "http://localhost:8000/auth/me",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log("User info from backend:", userResponse.data);
+          setUserRole(userResponse.data.role);
+          console.log("User role set to:", userResponse.data.role);
+          console.log("Is admin?", userResponse.data.role === "admin");
+        } catch (e) {
+          console.error("Error fetching user info:", e);
+          // If we can't get user info, redirect to login
+          localStorage.removeItem("token");
           navigate("/");
           return;
         }
@@ -76,19 +99,51 @@ export default function Leads() {
         }}
       >
         <h1>Leads Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-          }}
-        >
-          Logout
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          {userRole === "admin" && (
+            <>
+              <button
+                onClick={() => navigate("/create-lead")}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                + Create Lead
+              </button>
+              <button
+                onClick={() => navigate("/create-user")}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#8b5cf6",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                + Create User
+              </button>
+            </>
+          )}
+          <button
+            onClick={handleLogout}
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#ef4444",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
