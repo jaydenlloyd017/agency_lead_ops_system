@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Lead, LeadStatus, User, LeadStatusHistory
-from backend.schemas import LeadCreate, LeadStatusUpdate
+from backend.schemas import LeadCreate, LeadStatusUpdate, LeadResponse
 from .auth import get_current_user
 from backend.slack_utils import send_slack_dm, sync_slack_ids
 
@@ -13,7 +13,7 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 # --- Read all leads --- 
-@router.get("/leads")
+@router.get("/leads", response_model=list[LeadResponse])
 async def get_leads(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)  # Add authentication dependency
@@ -39,6 +39,38 @@ async def get_leads(
         )
 
     return leads
+
+# --- Read a single lead by ID ---
+@router.get("/api/leads/{lead_id}", response_model=LeadResponse)
+async def get_lead(
+    lead_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Get the lead from database
+    lead = db.query(Lead).filter(Lead.id == lead_id).first()
+    
+    if not lead:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lead not found."
+        )
+    
+    # Role-based access control
+    if current_user.role == 'rep':
+        # Reps can only view their assigned leads
+        if lead.assigned_to != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to view this lead."
+            )
+    elif current_user.role != 'admin':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view leads."
+        )
+    
+    return lead
 
 # --- Create a lead + automatic assignment of rep 
 @router.post("/api/leads")

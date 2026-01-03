@@ -2,6 +2,7 @@ from typing import Optional, Annotated
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from backend.models import LeadStatus
+from datetime import datetime
 
 class LeadCreate(BaseModel):
     full_name: str
@@ -46,5 +47,10 @@ class LeadResponse(BaseModel):
     phone: Optional[str]
     source: Optional[str]
     status: LeadStatus
-
+    assigned_to: Optional[int]
+    created_at: Optional[datetime]
     model_config = {"from_attributes": True}
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str

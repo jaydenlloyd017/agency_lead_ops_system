@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database import get_db
 from backend.models import Lead, LeadStatus, User, LeadStatusHistory
-from backend.schemas import LeadCreate, LeadStatusUpdate, UserCreate, UserResponse, UserLogin, TokenData, Token
+from backend.schemas import LeadCreate, LeadStatusUpdate, UserCreate, UserResponse, UserLogin, TokenData, Token, LoginRequest
 from backend.jwt_utils import create_access_token
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
@@ -69,17 +69,34 @@ def create_access_token(email: str, user_id: int, expires_delta: timedelta):
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Session = Depends(get_db)):
+    print(f"Received token: {token}")
+    print(f"Token length: {len(token)}")
+    print(f"Token dot count: {token.count('.')}")
+    
     try:
+        # Validate token format
+        if token.count('.') != 2:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token format."
+            )
+
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(f"Decoded payload: {payload}")
         email: str = payload.get('sub')
         user_id: int = payload.get('id')
         if email is None or user_id is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORISED,
-                                 detail='Could not validate user.')
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORISED,
-                             detail='Could not validate user.')
-    
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Could not validate user.'
+            )
+    except JWTError as e:
+        print(f"JWT Error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Could not validate user.'
+        )
+
     # Query the database for the user
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
@@ -93,11 +110,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Se
 
 
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 db: Session = Depends(get_db)):
-    user = authenticate_user(form_data.username, form_data.password, db)
+async def login_for_access_token(request: LoginRequest, db: Session = Depends(get_db)):
+    user = authenticate_user(request.email, request.password, db)
+    print("Received request:", request)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                 detail='Could not validate user.')
-    token = create_access_token(user.email, user.id, timedelta(minutes=20))
+                            detail='Could not validate user.')
+    token = create_access_token(request.email, user.id, timedelta(minutes=20))
     return {'access_token': token, 'token_type': 'bearer'}
