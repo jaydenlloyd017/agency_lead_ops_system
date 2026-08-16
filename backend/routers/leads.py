@@ -125,7 +125,7 @@ async def create_lead(user: user_dependency, lead_in: LeadCreate, db: Session = 
     next_index = (last_index + 1) % len(reps)
     next_rep = reps[next_index]
 
-    new_lead.assigned_to = 7
+    new_lead.assigned_to = next_rep.id
 
     # Save lead
     db.add(new_lead)

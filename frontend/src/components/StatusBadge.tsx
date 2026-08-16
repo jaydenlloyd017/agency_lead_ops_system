@@ -6,9 +6,9 @@ const statusColors: { [key: string]: string } = {
   NEW: "#3b82f6",
   CONTACTED: "#8b5cf6",
   QUALIFIED: "#10b981",
-  PROPOSAL: "#f59e0b",
-  WON: "#22c55e",
-  LOST: "#ef4444",
+  BOOKED: "#f59e0b",
+  CLOSED_WON: "#22c55e",
+  CLOSED_LOST: "#ef4444",
 };
 
 export default function StatusBadge({ status }: StatusBadgeProps) {

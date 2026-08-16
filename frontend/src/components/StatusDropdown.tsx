@@ -8,11 +8,11 @@ interface StatusDropdownProps {
 // Define valid status transitions
 const statusTransitions: { [key: string]: string[] } = {
   NEW: ["CONTACTED"],
-  CONTACTED: ["QUALIFIED", "LOST"],
-  QUALIFIED: ["PROPOSAL", "LOST"],
-  PROPOSAL: ["WON", "LOST"],
-  WON: [],
-  LOST: [],
+  CONTACTED: ["QUALIFIED", "CLOSED_LOST"],
+  QUALIFIED: ["BOOKED", "CLOSED_LOST"],
+  BOOKED: ["CLOSED_WON", "CLOSED_LOST"],
+  CLOSED_WON: [],
+  CLOSED_LOST: [],
 };
 
 export default function StatusDropdown({

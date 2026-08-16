@@ -88,7 +88,7 @@ def send_slack_dm(user_id: str, lead_name: str, lead_email: str, lead_source: st
             f"📧 *Email:* {lead_email}\n"
             f"🌐 *Source:* {lead_source or 'N/A'}\n\n"
             f"👉 *Next step:* Contact this lead ASAP\n"
-            f"🔗 *View lead:* https://your-dashboard-url/leads/{lead_id}"
+            f"🔗 *View lead:* http://localhost:5173/Leads/{lead_id}"
         )
         response = slack_client.chat_postMessage(channel=user_id, text=message)
         print(f"Message sent successfully to {user_id}: {response['message']['text']}")
