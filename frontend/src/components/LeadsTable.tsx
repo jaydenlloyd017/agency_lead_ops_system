@@ -36,23 +36,83 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
     >
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr style={{ backgroundColor: "#f3f4f6", textAlign: "left" }}>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+          <tr style={{ backgroundColor: "#F9FAFB", textAlign: "left" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Full Name
             </th>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Email
             </th>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Status
             </th>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Assigned To
             </th>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Created At
             </th>
-            <th style={{ padding: "12px", borderBottom: "2px solid #e5e7eb" }}>
+            <th
+              style={{
+                padding: "14px",
+                borderBottom: "1px solid #e5e7eb",
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#6B7280",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               Action
             </th>
           </tr>

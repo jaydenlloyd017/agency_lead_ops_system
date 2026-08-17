@@ -23,8 +23,8 @@ export default function FilterBar({
         backgroundColor: "white",
         border: "1px solid #E5E7EB",
         borderRadius: "12px",
-        padding: "18px",
-        marginBottom: "18px",
+        padding: "14px 16px",
+        marginBottom: "16px",
         boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
       }}
     >
@@ -32,7 +32,7 @@ export default function FilterBar({
         style={{
           display: "block",
           marginBottom: "6px",
-          fontSize: "13px",
+          fontSize: "12px",
           fontWeight: 600,
           color: "#6b7280",
         }}
