@@ -44,9 +44,7 @@ def create_access_token(email: str, user_id: int, role: str, expires_delta: time
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Session = Depends(get_db)):
-    print(f"Received token: {token}")
-    print(f"Token length: {len(token)}")
-    print(f"Token dot count: {token.count('.')}")
+    
     
     try:
         # Validate token format
