@@ -20,12 +20,14 @@ export default function Leads() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [error, setError] = useState("");
   const [userRole, setUserRole] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLeads = async () => {
       try {
         const token = localStorage.getItem("token");
+
         console.log("Token from localStorage:", token);
         console.log("Authorization header:", `Bearer ${token}`);
 
@@ -42,14 +44,18 @@ export default function Leads() {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
+
           console.log("User info from backend:", userResponse.data);
+
           setUserRole(userResponse.data.role);
+
           console.log("User role set to:", userResponse.data.role);
           console.log("Is admin?", userResponse.data.role === "admin");
         } catch (e) {
           console.error("Error fetching user info:", e);
+
           // If we can't get user info, redirect to login
           localStorage.removeItem("token");
           navigate("/");
@@ -61,10 +67,13 @@ export default function Leads() {
             Authorization: `Bearer ${token}`,
           },
         });
+
         setLeads(response.data);
       } catch (error) {
         console.error("Error fetching leads:", error);
+
         setError("Failed to fetch leads");
+
         // Redirect to login if unauthorized
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           navigate("/");
@@ -80,6 +89,7 @@ export default function Leads() {
     if (statusFilter === "ALL") {
       return leads;
     }
+
     return leads.filter((lead) => lead.status === statusFilter);
   }, [statusFilter, leads]);
 
@@ -89,71 +99,113 @@ export default function Leads() {
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1400px", margin: "0 auto" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#f5f7fb",
+        padding: "32px",
+      }}
+    >
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
+          maxWidth: "1400px",
+          margin: "0 auto",
         }}
       >
-        <h1>Leads Dashboard</h1>
-        <div style={{ display: "flex", gap: "10px" }}>
-          {userRole === "admin" && (
-            <>
-              <button
-                onClick={() => navigate("/create-lead")}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#10b981",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                + Create Lead
-              </button>
-              <button
-                onClick={() => navigate("/create-user")}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#8b5cf6",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                }}
-              >
-                + Create User
-              </button>
-            </>
-          )}
-          <button
-            onClick={handleLogout}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "28px",
+          }}
+        >
+          <div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "14px",
+                color: "#6b7280",
+                fontWeight: 600,
+              }}
+            >
+              Agency Lead Operations
+            </p>
+
+            <h1
+              style={{
+                margin: "4px 0 0",
+                fontSize: "32px",
+                letterSpacing: "-0.03em",
+              }}
+            >
+              Leads Dashboard
+            </h1>
+          </div>
+
+          <div
             style={{
-              padding: "8px 16px",
-              backgroundColor: "#ef4444",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
+              display: "flex",
+              gap: "10px",
             }}
           >
-            Logout
-          </button>
+            {userRole === "admin" && (
+              <>
+                <button
+                  onClick={() => navigate("/create-lead")}
+                  style={{
+                    padding: "8px 16px",
+                    backgroundColor: "#10b981",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  + Create Lead
+                </button>
+
+                <button
+                  onClick={() => navigate("/create-user")}
+                  style={{
+                    padding: "8px 16px",
+                    backgroundColor: "#8b5cf6",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  + Create User
+                </button>
+              </>
+            )}
+
+            <button
+              onClick={handleLogout}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#ef4444",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Logout
+            </button>
+          </div>
         </div>
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
+        <FilterBar
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+        />
+
+        <LeadsTable leads={filteredLeads} />
       </div>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <FilterBar
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-      />
-
-      <LeadsTable leads={filteredLeads} />
     </div>
   );
 }
