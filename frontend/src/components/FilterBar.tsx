@@ -9,8 +9,8 @@ const allStatuses = [
   "CONTACTED",
   "QUALIFIED",
   "PROPOSAL",
-  "WON",
-  "LOST",
+  "CLOSED_WON",
+  "CLOSED_LOST",
 ];
 
 export default function FilterBar({
