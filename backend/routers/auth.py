@@ -55,7 +55,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Se
             )
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        print(f"Decoded payload: {payload}")
+       
         email: str = payload.get('sub')
         user_id: int = payload.get('id')
         if email is None or user_id is None:
@@ -64,7 +64,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Se
                 detail='Could not validate user.'
             )
     except JWTError as e:
-        print(f"JWT Error: {e}")
+        
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate user.'
@@ -84,7 +84,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: Se
 @router.post("/token", response_model=Token)
 async def login_for_access_token(request: LoginRequest, db: Session = Depends(get_db)):
     user = authenticate_user(request.email, request.password, db)
-    print("Received request:", request)
+  
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user.')
