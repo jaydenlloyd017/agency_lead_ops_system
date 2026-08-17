@@ -264,11 +264,15 @@ The interface uses a consistent dashboard-style design with:
 
 ### Create Lead
 
-![Create lead page](screenshots/create-lead.png)
+![Create lead page](screenshots/create_lead.png)
 
-### Lead Details
+### Create User
 
-![Lead details page](screenshots/lead-detail.png)
+![Create user page](screenshots/create_user.png)
+
+### Lead Details and Status History
+
+![Lead status history](screenshots/view_history.png)
 
 ---
 
