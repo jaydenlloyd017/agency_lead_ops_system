@@ -1,8 +1,8 @@
 interface HistoryItem {
   id: number;
   lead_id: number;
-  old_status: string;
-  new_status: string;
+  from_status: string;
+  to_status: string;
   changed_at: string;
   changed_by?: number;
 }
@@ -29,7 +29,7 @@ export default function HistoryTimeline({ history }: HistoryTimelineProps) {
           }}
         >
           <div style={{ fontSize: "16px", fontWeight: "500" }}>
-            {item.old_status} → {item.new_status}
+            {item.from_status} → {item.to_status}
           </div>
           <div style={{ fontSize: "14px", color: "#6b7280" }}>
             {new Date(item.changed_at).toLocaleString()}

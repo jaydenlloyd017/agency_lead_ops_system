@@ -20,8 +20,8 @@ interface Lead {
 interface HistoryItem {
   id: number;
   lead_id: number;
-  old_status: string;
-  new_status: string;
+  from_status: string;
+  to_status: string;
   changed_at: string;
   changed_by?: number;
 }
