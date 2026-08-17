@@ -8,7 +8,7 @@ const allStatuses = [
   "NEW",
   "CONTACTED",
   "QUALIFIED",
-  "PROPOSAL",
+  "BOOKED",
   "CLOSED_WON",
   "CLOSED_LOST",
 ];
@@ -20,27 +20,36 @@ export default function FilterBar({
   return (
     <div
       style={{
-        marginBottom: "20px",
-        padding: "15px",
-        backgroundColor: "#f9fafb",
-        borderRadius: "4px",
+        backgroundColor: "white",
+        border: "1px solid #E5E7EB",
+        borderRadius: "12px",
+        padding: "18px",
+        marginBottom: "18px",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
       }}
     >
       <label
-        htmlFor="status-filter"
-        style={{ marginRight: "10px", fontWeight: "500" }}
+        style={{
+          display: "block",
+          marginBottom: "6px",
+          fontSize: "13px",
+          fontWeight: 600,
+          color: "#6b7280",
+        }}
       >
-        Filter by Status:
+        Filter by Status
       </label>
+
       <select
-        id="status-filter"
         value={statusFilter}
         onChange={(e) => onStatusFilterChange(e.target.value)}
         style={{
-          padding: "8px",
-          fontSize: "14px",
-          borderRadius: "4px",
+          padding: "9px 12px",
+          minWidth: "180px",
           border: "1px solid #d1d5db",
+          borderRadius: "8px",
+          backgroundColor: "white",
+          fontSize: "14px",
         }}
       >
         {allStatuses.map((status) => (

@@ -42,7 +42,7 @@ export default function CreateUser() {
   }, [navigate]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setFormData({
       ...formData,
@@ -77,7 +77,7 @@ export default function CreateUser() {
           navigate("/");
         } else if (err.response?.status === 403) {
           setError(
-            "You don't have permission to create users. Admin access required."
+            "You don't have permission to create users. Admin access required.",
           );
         } else {
           setError(err.response?.data?.detail || "Failed to create user");
@@ -218,15 +218,13 @@ export default function CreateUser() {
           type="submit"
           disabled={loading}
           style={{
-            width: "100%",
-            padding: "12px",
-            backgroundColor: loading ? "#9ca3af" : "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            fontSize: "16px",
-            fontWeight: "500",
-            cursor: loading ? "not-allowed" : "pointer",
+            padding: "10px 16px",
+            backgroundColor: "white",
+            color: "#4F46E5",
+            border: "1px solid #C7D2FE",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontWeight: 600,
           }}
         >
           {loading ? "Creating..." : "Create User"}

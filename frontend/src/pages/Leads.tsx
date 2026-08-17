@@ -154,12 +154,13 @@ export default function Leads() {
                 <button
                   onClick={() => navigate("/create-lead")}
                   style={{
-                    padding: "8px 16px",
-                    backgroundColor: "#10b981",
+                    padding: "10px 16px",
+                    backgroundColor: "#4F46E5",
                     color: "white",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "8px",
                     cursor: "pointer",
+                    fontWeight: 600,
                   }}
                 >
                   + Create Lead
@@ -168,12 +169,13 @@ export default function Leads() {
                 <button
                   onClick={() => navigate("/create-user")}
                   style={{
-                    padding: "8px 16px",
-                    backgroundColor: "#8b5cf6",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
+                    padding: "10px 16px",
+                    backgroundColor: "white",
+                    color: "#4F46E5",
+                    border: "1px solid #C7D2FE",
+                    borderRadius: "8px",
                     cursor: "pointer",
+                    fontWeight: 600,
                   }}
                 >
                   + Create User
@@ -184,12 +186,13 @@ export default function Leads() {
             <button
               onClick={handleLogout}
               style={{
-                padding: "8px 16px",
-                backgroundColor: "#ef4444",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
+                padding: "10px 16px",
+                backgroundColor: "white",
+                color: "#DC2626",
+                border: "1px solid #FECACA",
+                borderRadius: "8px",
                 cursor: "pointer",
+                fontWeight: 600,
               }}
             >
               Logout
