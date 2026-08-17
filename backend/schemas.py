@@ -48,6 +48,7 @@ class LeadResponse(BaseModel):
     source: Optional[str]
     status: LeadStatus
     assigned_to: Optional[int]
+    assigned_rep_name: Optional[str] = None
     created_at: Optional[datetime]
     model_config = {"from_attributes": True}
 

@@ -9,6 +9,7 @@ interface Lead {
   source?: string;
   status: string;
   assigned_to?: number;
+  assigned_rep_name?: string;
   created_at?: string;
 }
 
@@ -56,7 +57,7 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
               <StatusBadge status={lead.status} />
             </td>
             <td style={{ padding: "12px" }}>
-              {lead.assigned_to || "Unassigned"}
+              {lead.assigned_rep_name || "Unassigned"}
             </td>
             <td style={{ padding: "12px" }}>
               {lead.created_at

@@ -38,6 +38,13 @@ async def get_leads(
             detail="No leads found."
         )
 
+    for lead in leads:
+        if lead.assigned_to:
+            rep = db.query(User).filter(User.id == lead.assigned_to).first()
+            lead.assigned_rep_name = rep.full_name if rep else None
+        else:
+            lead.assigned_rep_name = None
+
     return leads
 
 # --- Read a single lead by ID ---
