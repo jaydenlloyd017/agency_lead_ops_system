@@ -47,12 +47,7 @@ export default function Leads() {
             },
           );
 
-          console.log("User info from backend:", userResponse.data);
-
           setUserRole(userResponse.data.role);
-
-          console.log("User role set to:", userResponse.data.role);
-          console.log("Is admin?", userResponse.data.role === "admin");
         } catch (e) {
           console.error("Error fetching user info:", e);
 
