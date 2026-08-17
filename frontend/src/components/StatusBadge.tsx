@@ -25,7 +25,11 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
         fontWeight: "500",
       }}
     >
-      {status}
+      {status
+        .toLowerCase()
+        .split("_")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")}
     </span>
   );
 }

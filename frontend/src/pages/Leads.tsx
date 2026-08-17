@@ -104,6 +104,9 @@ export default function Leads() {
         minHeight: "100vh",
         backgroundColor: "#f5f7fb",
         padding: "32px",
+        fontFamily:
+          "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        color: "#111827",
       }}
     >
       <div

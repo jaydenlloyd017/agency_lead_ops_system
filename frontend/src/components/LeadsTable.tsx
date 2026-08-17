@@ -78,10 +78,10 @@ export default function LeadsTable({ leads }: LeadsTableProps) {
                   onClick={() => navigate(`/leads/${lead.id}`)}
                   style={{
                     padding: "6px 12px",
-                    backgroundColor: "#3b82f6",
+                    backgroundColor: "#4F46E5",
                     color: "white",
                     border: "none",
-                    borderRadius: "4px",
+                    borderRadius: "6px",
                     cursor: "pointer",
                   }}
                 >
