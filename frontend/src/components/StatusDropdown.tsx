@@ -15,6 +15,13 @@ const statusTransitions: { [key: string]: string[] } = {
   CLOSED_LOST: [],
 };
 
+const formatStatus = (status: string) =>
+  status
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
 export default function StatusDropdown({
   currentStatus,
   onStatusChange,
@@ -40,7 +47,11 @@ export default function StatusDropdown({
   };
 
   if (allowedStatuses.length === 0) {
-    return <p>No further status changes available for {currentStatus}</p>;
+    return (
+      <p>
+        No further status changes available for {formatStatus(currentStatus)}
+      </p>
+    );
   }
 
   return (
@@ -55,10 +66,12 @@ export default function StatusDropdown({
         disabled={isUpdating}
         style={{ padding: "8px", fontSize: "14px" }}
       >
-        <option value={currentStatus}>Current: {currentStatus}</option>
+        <option value={currentStatus}>
+          Current: {formatStatus(currentStatus)}
+        </option>
         {allowedStatuses.map((status) => (
           <option key={status} value={status}>
-            {status}
+            {formatStatus(status)}
           </option>
         ))}
       </select>
