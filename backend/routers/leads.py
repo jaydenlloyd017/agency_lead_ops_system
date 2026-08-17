@@ -276,9 +276,10 @@ async def get_lead_history(
         )
 
     # Query the lead's status history
-    history = db.query(LeadStatusHistory).filter(LeadStatusHistory.lead_id == id).all()
+    history = db.query(LeadStatusHistory).filter(
+    LeadStatusHistory.lead_id == id
+).all()
 
-    # Return the history
-    if not history:
-
-        return history
+    return history
+    
+    
