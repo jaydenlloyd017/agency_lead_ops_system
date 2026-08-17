@@ -11,6 +11,13 @@ interface HistoryTimelineProps {
   history?: HistoryItem[] | null;
 }
 
+const formatStatus = (status: string) =>
+  status
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
 export default function HistoryTimeline({ history }: HistoryTimelineProps) {
   if (!history || history.length === 0) {
     return <p>No status changes yet.</p>;
@@ -22,14 +29,14 @@ export default function HistoryTimeline({ history }: HistoryTimelineProps) {
         <div
           key={item.id}
           style={{
-            borderLeft: "3px solid #3b82f6",
+            borderLeft: "3px solid #4F46E5",
             paddingLeft: "15px",
             marginBottom: "15px",
             paddingBottom: "10px",
           }}
         >
           <div style={{ fontSize: "16px", fontWeight: "500" }}>
-            {item.from_status} → {item.to_status}
+            {formatStatus(item.from_status)} → {formatStatus(item.to_status)}
           </div>
           <div style={{ fontSize: "14px", color: "#6b7280" }}>
             {new Date(item.changed_at).toLocaleString()}
