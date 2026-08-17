@@ -76,6 +76,11 @@ async def get_lead(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to view leads."
         )
+    if lead.assigned_to:
+        rep = db.query(User).filter(User.id == lead.assigned_to).first()
+        lead.assigned_rep_name = rep.full_name if rep else None
+    else:
+        lead.assigned_rep_name = None
     
     return lead
 
@@ -226,7 +231,7 @@ async def update_lead_status(
         lead_id = lead.id,
         from_status = current_status,
         to_status=new_status,
-        changed_by=None
+        changed_by=current_user.id
     )
 
     db.add(history_entry)
@@ -275,9 +280,5 @@ async def get_lead_history(
 
     # Return the history
     if not history:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No history found for this lead."
-        )
 
-    return history
+        return history

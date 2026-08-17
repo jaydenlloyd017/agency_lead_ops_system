@@ -8,11 +8,11 @@ interface HistoryItem {
 }
 
 interface HistoryTimelineProps {
-  history: HistoryItem[];
+  history?: HistoryItem[] | null;
 }
 
 export default function HistoryTimeline({ history }: HistoryTimelineProps) {
-  if (history.length === 0) {
+  if (!history || history.length === 0) {
     return <p>No status changes yet.</p>;
   }
 
