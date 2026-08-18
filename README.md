@@ -325,7 +325,7 @@ agency_lead_ops_system/
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone <https://github.com/jaydenlloyd017/agency_lead_ops_system>
 cd agency_lead_ops_system
 ```
 
